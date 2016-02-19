@@ -1,7 +1,7 @@
 [
 	{
 		"id": "r10k",
-		"execute-command": "/r10k-inetd-deploy.sh",
+		"execute-command": "/push-to-r10k.sh",
 		"command-working-directory": "/",
 		"pass-arguments-to-command":
 		[
