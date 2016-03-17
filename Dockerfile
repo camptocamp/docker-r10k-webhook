@@ -10,7 +10,6 @@ ENV LANGUAGE=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 
-ENV PUPPET_AGENT_VERSION 1.3.4-1${RELEASE}
 ENV PATH=/opt/puppetlabs/server/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/bin:$PATH
 
 RUN apt-get update \
@@ -19,8 +18,7 @@ RUN apt-get update \
   && dpkg -i puppetlabs-release-pc1-${RELEASE}.deb \
   && rm -rf /var/lib/apt/lists/*
 RUN apt-get update \
-  && apt-get install -y --force-yes \
-    puppet-agent=$PUPPET_AGENT_VERSION \
+  && apt-get install -y puppet-agent \
   && rm -rf /var/lib/apt/lists/*
 
 # Configure mcollective client
