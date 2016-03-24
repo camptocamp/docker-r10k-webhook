@@ -2,6 +2,8 @@
 
 # Setup client.cfg
 cat << EOF >> /etc/puppetlabs/mcollective/client.cfg
+plugin.activemq.base64 = yes
+
 plugin.ssl_server_public = /etc/puppetlabs/mcollective/ssl/server-public.pem
 
 plugin.ssl_client_public = /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}.pem
