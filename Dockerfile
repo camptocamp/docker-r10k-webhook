@@ -31,6 +31,7 @@ COPY plugins/ /opt/puppetlabs/mcollective/plugins/
 RUN useradd -r -s /bin/false r10k
 COPY r10k.json /etc/webhook/r10k.json
 RUN chown -R r10k. /etc/webhook
+RUN chown -R r10k. /etc/puppetlabs/mcollective/client.cfg
 USER r10k
 
 COPY push-to-r10k.sh /push-to-r10k.sh
