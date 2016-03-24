@@ -8,6 +8,8 @@ plugin.ssl_client_public = /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_
 plugin.ssl_client_private = /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}-private.pem
 EOF
 
+mkdir -p /etc/puppetlabs/mcollective/ssl
+
 # Dump private key
 echo -e "${MCOLLECTIVE_CLIENT_PRIVATE_KEY}" > /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}-private.pem
 
