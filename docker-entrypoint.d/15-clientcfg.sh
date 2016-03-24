@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Setup client.cfg
 cat << EOF >> /etc/puppetlabs/mcollective/client.cfg
@@ -9,7 +9,8 @@ plugin.ssl_client_private = /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT
 EOF
 
 # Dump private key
-echo -e "${MCOLLECTIVE_CLIENT_PRIVATE_KEY}" > /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}-private.pem
+echo "${MCOLLECTIVE_CLIENT_PRIVATE_KEY}" > /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}-private.pem
+chmod 0600 /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}-private.pem
 
 # Generate public X509 key
 ssh-keygen -f /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}-private.pem -e -m pem > /etc/puppetlabs/mcollective/ssl/${MCOLLECTIVE_CLIENT_USER}.pem
