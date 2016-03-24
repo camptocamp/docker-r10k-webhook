@@ -32,6 +32,8 @@ RUN useradd -r -s /bin/false r10k
 COPY r10k.json /etc/webhook/r10k.json
 RUN chown -R r10k. /etc/webhook
 RUN chown -R r10k. /etc/puppetlabs/mcollective/client.cfg
+RUN mkdir -p /etc/puppetlabs/mcollective/ssl
+RUN chown -R r10k. /etc/puppetlabs/mcollective/ssl
 USER r10k
 
 COPY push-to-r10k.sh /push-to-r10k.sh
