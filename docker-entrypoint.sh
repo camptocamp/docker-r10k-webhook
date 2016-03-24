@@ -1,5 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
-sed -i "s/%{HOOKS_SECRET}/${HOOKS_SECRET}/g" /etc/webhook/*.json
+DIR=/docker-entrypoint.d
 
-exec /go/bin/webhook -hooks /etc/webhook/*.json -verbose
+if [[ -d "$DIR" ]]
+then
+  /bin/run-parts --verbose --regex '\.(sh|rb)$' "$DIR"
+fi
+
+exec "$@"

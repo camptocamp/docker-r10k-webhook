@@ -22,7 +22,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Configure mcollective client
-RUN sed -i -e 's/stomp1/activemq/' -e 's/6163/61613/' /etc/puppetlabs/mcollective/client.cfg
+RUN sed -i -e 's/stomp1/activemq/' \
+           -e 's/6163/61613/' \
+           -e 's/^securityprovider = .*$/securityprovider = ssl/' \
+           /etc/puppetlabs/mcollective/client.cfg
 COPY plugins/ /opt/puppetlabs/mcollective/plugins/
 
 RUN useradd -r -s /bin/false r10k
@@ -32,5 +35,8 @@ USER r10k
 
 COPY push-to-r10k.sh /push-to-r10k.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY /docker-entrypoint.d/* /docker-entrypoint.d/
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh", "/go/bin/webhook"]
+CMD ["-hooks", "/etc/webhook/*.json", "-verbose"]
+
