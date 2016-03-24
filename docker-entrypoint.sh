@@ -7,4 +7,4 @@ then
   /bin/run-parts --verbose --regex '\.(sh|rb)$' "$DIR"
 fi
 
-exec "$@"
+exec /go/bin/webhook -hooks /etc/webhook/*.json -verbose "$@"

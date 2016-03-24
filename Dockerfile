@@ -37,6 +37,5 @@ COPY push-to-r10k.sh /push-to-r10k.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY /docker-entrypoint.d/* /docker-entrypoint.d/
 
-ENTRYPOINT ["/docker-entrypoint.sh", "/go/bin/webhook"]
-CMD ["-hooks", "/etc/webhook/*.json", "-verbose"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
