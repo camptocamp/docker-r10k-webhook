@@ -41,6 +41,18 @@
         {
           "match":
           {
+            "type": "payload-hash-sha256",
+            "secret": "%{HOOKS_SECRET}",
+            "parameter":
+            {
+              "source": "header",
+              "name": "X-Gogs-Signature"
+            }
+          }
+        },
+        {
+          "match":
+          {
             "type": "value",
             "value": "%{HOOKS_SECRET}",
             "parameter":
