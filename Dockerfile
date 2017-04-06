@@ -7,7 +7,7 @@ ENV RELEASE=jessie \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     PATH=/opt/puppetlabs/server/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/bin:$PATH \
-    GOVERSION="1.7.4" \
+    GOVERSION="1.8" \
     GOPATH="/go" \
     GOROOT="/goroot"
 
