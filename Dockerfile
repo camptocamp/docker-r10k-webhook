@@ -34,8 +34,6 @@ RUN useradd -r -s /bin/false r10k
 COPY r10k.json /etc/webhook/r10k.json
 RUN chown -R r10k. /etc/webhook
 
-USER r10k
-
 COPY push-to-r10k.sh /push-to-r10k.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY /docker-entrypoint.d/* /docker-entrypoint.d/
