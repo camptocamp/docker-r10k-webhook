@@ -45,6 +45,18 @@
             "value": "%{HOOKS_SECRET}",
             "parameter":
             {
+              "source": "header",
+              "name": "X-Gitlab-Token"
+            }
+          }
+        },
+        {
+          "match":
+          {
+            "type": "value",
+            "value": "%{HOOKS_SECRET}",
+            "parameter":
+            {
               "source": "payload",
               "name": "secret"
             }
