@@ -1,41 +1,51 @@
-FROM debian:jessie
+FROM debian:stretch
+
+ENV \
+    WEBHOOK_VERSION=2.6.9 \
+    R10K_VERSION='3.1.0' \
+	HOME=/home/g10k
 
 EXPOSE 9000
 
-ENV \
-    GOVERSION="1.8" \
-    GOPATH="/go" \
-    GOROOT="/goroot" \
-    R10K_VERSION='2.4.5+RK-291-forge_module_caching'
-
-# Install webhook
 RUN apt-get update \
-    && apt-get -y install git curl rubygems \
-    && apt-get install -y ca-certificates \
-    && curl https://storage.googleapis.com/golang/go${GOVERSION}.linux-amd64.tar.gz | tar xzf - \
-    && mv /go ${GOROOT} \
-    && ${GOROOT}/bin/go get github.com/adnanh/webhook \
-    && rm -rf go${GOVERSION}.linux-amd64.tar.gz ${GOROOT} \
-    && apt-get clean
+    && apt-get install -y git ca-certificates curl unzip rubygems \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install r10k
 RUN gem install specific_install --no-ri --no-rdoc \
-  && gem specific_install -l https://github.com/camptocamp/r10k.git -b $R10K_VERSION
+  && gem specific_install -l https://github.com/puppetlabs/r10k.git -b $R10K_VERSION
 
-# Configure .ssh directory
-RUN mkdir /root/.ssh \
-  && chmod 0600 /root/.ssh \
-  && echo StrictHostKeyChecking no > /root/.ssh/config
-
-# Configure volumes
-VOLUME ["/opt/puppetlabs/r10k/cache/", "/etc/puppetlabs/code/environments"]
-
-RUN useradd -r -s /bin/false r10k
-COPY r10k.json /etc/webhook/r10k.json
-RUN chown -R r10k. /etc/webhook
+# Install webhook
+RUN curl -L https://github.com/adnanh/webhook/releases/download/${WEBHOOK_VERSION}/webhook-linux-amd64.tar.gz -o webhook-linux-amd64.tar.gz \
+    && tar xzf webhook-linux-amd64.tar.gz \
+	&& mv webhook-linux-amd64/webhook /usr/local/bin \
+	&& chmod +x /usr/local/bin/webhook \
+	&& rm webhook-linux-amd64.tar.gz
 
 COPY push-to-r10k.sh /push-to-r10k.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+
+RUN echo StrictHostKeyChecking no >> /etc/ssh/ssh_config
+
+COPY r10k.yaml.tmpl /etc/webhook/r10k.yaml.tmpl
+
+# install nss_wrapper in case we need to fake /etc/passwd and /etc/group (i.e. for OpenShift)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends libnss-wrapper && \
+	rm -rf /var/lib/apt/lists/*
+
+COPY nss_wrapper.sh /
 COPY /docker-entrypoint.d/* /docker-entrypoint.d/
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+RUN mkdir -p /etc/puppetlabs/code/environments && \
+    chgrp 0 -R /etc/puppetlabs/code && \
+	chmod g=u -R /etc/puppetlabs/code
+VOLUME ["/etc/puppetlabs/code"]
+
+RUN mkdir -p ${HOME} && \
+	chgrp 0 -R ${HOME} && \
+	chmod g=u -R ${HOME}
+USER 1000
+
+ENTRYPOINT ["/docker-entrypoint.sh", "/usr/local/bin/webhook"]
+CMD ["-hooks", "/etc/webhook/r10k.yaml.tmpl", "-template", "-verbose"]
