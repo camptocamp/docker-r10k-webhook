@@ -38,7 +38,6 @@ RUN apt-get update \
     && apt-get clean
 
 RUN useradd -r -s /bin/false r10k
-COPY r10k.json /etc/webhook/r10k.json
 RUN chown -R r10k. /etc/webhook
 RUN chown -R r10k. /etc/puppetlabs/mcollective/client.cfg
 RUN mkdir -p /etc/puppetlabs/mcollective/ssl
@@ -48,5 +47,6 @@ USER r10k
 COPY push-to-r10k.sh /push-to-r10k.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY /docker-entrypoint.d/* /docker-entrypoint.d/
+COPY r10k.yaml.tmpl /etc/webhook/r10k.yaml.tmpl
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
