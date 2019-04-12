@@ -7,4 +7,4 @@ then
   /bin/run-parts --verbose --regex '\.(sh|rb)$' "$DIR"
 fi
 
-exec /go/bin/webhook -hooks /etc/webhook/r10k.yaml.tmpl -template -verbose "$@"
+exec /usr/local/bin/webhook -hooks /etc/webhook/r10k.yaml.tmpl -template -verbose "$@"
