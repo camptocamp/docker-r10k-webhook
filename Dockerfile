@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 
 EXPOSE 9000
 
@@ -7,9 +7,8 @@ ENV RELEASE=jessie \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     PATH=/opt/puppetlabs/server/bin:/opt/puppetlabs/puppet/bin:/opt/puppetlabs/bin:$PATH \
-    GOVERSION="1.8" \
-    GOPATH="/go" \
-    GOROOT="/goroot"
+    WEBHOOK_VERSION=2.6.9 \
+    R10K_VERSION='2.6.5'
 
 RUN apt-get update \
   && apt-get install -y curl locales-all \
@@ -27,19 +26,24 @@ RUN sed -i -e 's/stomp1/activemq/' \
            /etc/puppetlabs/mcollective/client.cfg
 COPY plugins/ /opt/puppetlabs/mcollective/plugins/
 
-# Install webhook
 RUN apt-get update \
-    && apt-get -y install git curl \
-    && apt-get install -y ca-certificates \
-    && curl https://storage.googleapis.com/golang/go${GOVERSION}.linux-amd64.tar.gz | tar xzf - \
-    && mv /go ${GOROOT} \
-    && ${GOROOT}/bin/go get github.com/raphink/webhook \
-    && rm -rf go${GOVERSION}.linux-amd64.tar.gz ${GOROOT} \
-    && apt-get clean
+  && apt-get install -y git ca-certificates curl unzip rubygems \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install r10k
+RUN gem install specific_install --no-ri --no-rdoc \
+  && gem specific_install -l https://github.com/puppetlabs/r10k.git -b $R10K_VERSION
+
+# Install webhook
+RUN curl -L https://github.com/adnanh/webhook/releases/download/${WEBHOOK_VERSION}/webhook-linux-amd64.tar.gz -o webhook-linux-amd64.tar.gz \
+	&& tar xzf webhook-linux-amd64.tar.gz \
+	&& mv webhook-linux-amd64/webhook /usr/local/bin \
+	&& chmod +x /usr/local/bin/webhook \
+	&& rm webhook-linux-amd64.tar.gz
 
 RUN useradd -r -s /bin/false r10k
-COPY r10k.json /etc/webhook/r10k.json
-RUN chown -R r10k. /etc/webhook
+RUN mkdir /etc/webhook \
+    && chown -R r10k. /etc/webhook
 RUN chown -R r10k. /etc/puppetlabs/mcollective/client.cfg
 RUN mkdir -p /etc/puppetlabs/mcollective/ssl
 RUN chown -R r10k. /etc/puppetlabs/mcollective/ssl
@@ -48,5 +52,6 @@ USER r10k
 COPY push-to-r10k.sh /push-to-r10k.sh
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 COPY /docker-entrypoint.d/* /docker-entrypoint.d/
+COPY r10k.yaml.tmpl /etc/webhook/r10k.yaml.tmpl
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
